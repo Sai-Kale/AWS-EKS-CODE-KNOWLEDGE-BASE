@@ -1,0 +1,18 @@
+apiVersion: agents.contrastsecurity.com/v1beta1
+kind: ClusterAgentConnection
+metadata:
+  name: ${name}
+  namespace: ${namespace}
+spec:
+  template:
+    spec:
+      url: https://app.contrastsecurity.com/Contrast
+      apiKey:
+        secretName: ${secret_name}
+        secretKey: apiKey
+      serviceKey:
+        secretName: ${secret_name}
+        secretKey: serviceKey
+      userName:
+        secretName: ${secret_name}
+        secretKey: userName

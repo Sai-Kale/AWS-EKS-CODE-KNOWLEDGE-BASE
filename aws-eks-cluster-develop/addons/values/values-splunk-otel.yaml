@@ -1,0 +1,24 @@
+splunkPlatform:
+  endpoint: "${splunk_host}"
+  token: "${splunk_token}"
+  metricsIndex: k8s-metrics
+  index: "${splunk_index}"
+  insecureSkipVerify: true
+  
+clusterName: "${cluster_name}"
+
+# Default is 'fluentd', will eventualy be 'otel'
+logsEngine: otel
+
+#cloudProvider: "aws"
+######################################################################################################
+##  https://github.com/signalfx/splunk-otel-collector-chart/blob/main/docs/advanced-configuration.md
+##  Follow the above link to understand the confirugration for multilineConfigs
+######################################################################################################
+logsCollection:
+  containers:
+    multilineConfigs:
+      - namespaceName:
+          value: "${otel_app_namespace}"
+        firstEntryRegex: ^[^\s].*
+        combineWith: " "

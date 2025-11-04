@@ -1,0 +1,13 @@
+apiVersion: agents.contrastsecurity.com/v1beta1
+kind: ClusterAgentConfiguration
+metadata:
+  name: ${name}
+  namespace: ${namespace}
+spec:
+  template:
+    spec:
+      yaml: |-
+        server:
+          environment: ${environment}
+      suppressDefaultServerName: true
+      suppressDefaultApplicationName: false

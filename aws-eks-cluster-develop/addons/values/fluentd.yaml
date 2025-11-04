@@ -1,0 +1,28 @@
+fullnameOverride: "fluentd"
+global:
+  kubernetes:
+    clusterName: "${cluster_name}"
+image:
+  registry: docker-artifactory.spectrumflow.net
+  name: docker/splunk/fluentd-hec
+  tag: 1.3.3
+  usePullSecret: true
+  pullSecretName: docker-artifactory
+resources:
+  limits:
+    cpu: "1000m"
+    memory: "1000Mi"
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+splunk:
+  hec:
+    host: "${splunk_host}"
+    port: 443
+    token: "${splunk_token}"
+    indexName: "${splunk_index}"
+    protocol: https
+containers:
+  logFormatType: cri
+fluentd:
+  path: /var/log/containers/*.log

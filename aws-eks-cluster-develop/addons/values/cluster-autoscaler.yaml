@@ -1,0 +1,86 @@
+autoDiscovery:
+  clusterName: "${cluster_name}"
+  enabled: true
+
+awsRegion: "${aws_region}"
+
+rbac:
+  create: true
+  serviceAccount:
+    create: true
+    name: cluster-autoscaler
+    annotations:
+      eks.amazonaws.com/role-arn: "${role_arn}"
+
+# Configure the cluster-autoscaler deployment
+extraArgs:
+  logtostderr: true
+  stderrthreshold: info
+  v: 4
+  # AWS specific settings
+  skip-nodes-with-local-storage: false
+  skip-nodes-with-system-pods: false
+  balance-similar-node-groups: true
+  expander: least-waste
+  # Scale down settings
+  scale-down-enabled: true
+  scale-down-delay-after-add: 10m
+  scale-down-unneeded-time: 10m
+  scale-down-utilization-threshold: 0.5
+  max-node-provision-time: 15m
+
+# Resource requests and limits
+resources:
+  limits:
+    cpu: 100m
+    memory: 300Mi
+  requests:
+    cpu: 100m
+    memory: 300Mi
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  fsGroup: 1001
+  seccompProfile:
+    type: RuntimeDefault
+
+# Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1001
+
+# Node selector to run on Linux nodes
+nodeSelector:
+  kubernetes.io/os: linux
+
+# Tolerations for cluster-autoscaler pods
+tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+  - key: "node-role.kubernetes.io/master"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+# Priority class for the cluster-autoscaler deployment
+priorityClassName: "system-cluster-critical"
+
+# Service Monitor for Prometheus metrics
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  metricRelabelings: []
+
+# Image configuration
+image:
+  repository: registry.k8s.io/autoscaling/cluster-autoscaler
+  # The image tag will be set to match the cluster version automatically
+  # You can override it here if needed
+  # tag: v1.30.0

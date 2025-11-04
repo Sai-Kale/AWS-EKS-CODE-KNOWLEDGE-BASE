@@ -1,0 +1,14 @@
+image:
+  registry: "docker-artifactory.spectrumflow.net/docker"
+  repository: "contrast/agent-operator"
+  tag:
+agentInjectors:
+  injectors: []
+namespace: contrast-agent-operator
+imageCredentials:
+  pullSecretName: docker-artifactory
+  # If enabled, a registry credential secret will be created using the above name and below credentials.
+  enabled: true
+  registry: docker-artifactory.spectrumflow.net
+  username: "${username}"
+  password: "${password}"

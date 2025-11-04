@@ -1,0 +1,97 @@
+initContainers:
+  - name: velero-plugin-for-aws
+    image: docker-artifactory.spectrumflow.net/docker/velero/velero-plugin-for-aws:v1.7.1
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+configuration:
+  backupStorageLocation:
+    - provider: aws
+      bucket: "${velero_backup_bucket}"
+      config:
+        region: us-east-1
+      default: true
+      name: "${cluster_name}-cluster-backups"
+      prefix: "${cluster_name}"
+  volumeSnapshotLocation:
+    - config:
+        region: us-east-1
+        profile: "default"
+      provider: aws
+  extraEnvVars:
+    AWS_CLUSTER_NAME: "${cluster_name}"
+  credentials:
+    useSecret: false
+  serviceAccount:
+    server:
+      annotations:
+        eks.amazonaws.com/role-arn: "${ROLE_ARN}"
+  resources:
+    requests:
+      cpu: 500m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+  dnsPolicy: ClusterFirst
+schedules:
+  frequent:
+    disabled: ${disable_frequent}
+    schedule: "${frequent_schedule}"
+    useOwnerReferencesInBackup: false
+    template:
+      ttl: 168h
+      includeClusterResources: true
+      excludedNamespaces:
+        - aws-load-balancer
+        - cattle-fleet-system
+        - cattle-impersonation-system
+        - cattle-system
+        - cert-manager
+        - charter-system
+        - datadog
+        - default
+        - external-dns
+        - external-secrets
+        - kube-node-lease
+        - kube-public
+        - kube-state-metrics
+        - kube-system
+        - kyverno
+        - local
+        - metrics-server
+        - splunk
+        - velero
+  longterm:
+    disabled: ${disable_longterm}
+    schedule: "${longterm_schedule}"
+    useOwnerReferencesInBackup: false
+    template:
+      ttl: 2190h
+      includeClusterResources: true
+      excludedNamespaces:
+        - aws-load-balancer
+        - cattle-fleet-system
+        - cattle-impersonation-system
+        - cattle-system
+        - cert-manager
+        - charter-system
+        - datadog
+        - default
+        - external-dns
+        - external-secrets
+        - kube-node-lease
+        - kube-public
+        - kube-state-metrics
+        - kube-system
+        - kyverno
+        - local
+        - metrics-server
+        - splunk
+        - velero
+image:
+  repository: docker-artifactory.spectrumflow.net/docker/velero/velero
+  pullPolicy: IfNotPresent
+  imagePullSecrets:
+    - docker-artifactory

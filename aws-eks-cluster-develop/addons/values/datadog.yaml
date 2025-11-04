@@ -1,0 +1,54 @@
+registry: docker-artifactory.spectrumflow.net/docker/datadog
+targetSystem: linux
+rbac:
+  create: true
+datadog:
+  clusterName: "${cluster_name}"
+  site: datadoghq.com
+  apiKey: "${datadog_api_key}"
+  appKey: "${datadog_app_key}"
+  kubeStateMetricsEnabled: true
+  kubeStateMetricsCore:
+    enabled: false
+  logs:
+    enabled: false
+    containerCollectAll: false
+  clusterChecks:
+    enabled: false
+  processAgent:
+    processAgent: true
+    processCollection: true
+  apm:
+    enabled: true
+    portEnabled: true
+  collectEvents: true
+  leaderElection: true
+  dogstatsd:
+    port: 8125
+    useHostPort: true
+    nonLocalTraffic: true
+  confd:
+    envoy.yaml: |-
+      ad_identifiers:
+        - proxyv2
+      init_config:
+      instances:
+        - openmetrics_endpoint: http://%%host%%:15090/stats/prometheus
+          included_metrics:
+            - cluster\.(in|out)\..*
+            - envoy_http_\..*
+          excluded_metrics: []
+          collect_server_info: false
+clusterAgent:
+  enabled: true
+  wpaController: true
+  image:
+    pullSecrets:
+      - name: "docker-artifactory"
+  metricsProvider:
+    enabled: true
+    registerAPIService: true
+agents:
+  image:
+    pullSecrets:
+      - name: "docker-artifactory"

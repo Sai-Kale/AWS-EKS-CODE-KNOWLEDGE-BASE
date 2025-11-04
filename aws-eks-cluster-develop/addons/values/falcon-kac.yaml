@@ -1,0 +1,6 @@
+falcon:
+  cid: "${falcon_cid}"
+image:
+  repository: "docker-artifactory.spectrumflow.net/docker-corp-chartercom-com-infosecurity-virtual/crowdstrike/falcon-kac"
+  tag: "${falcon_kac_image_tag}"
+  pullSecrets: docker-artifactory

@@ -1,0 +1,13 @@
+provider: aws
+policy: upsert-only
+domainFilters:
+  - ${domain}
+txtPrefix: ${txt_prefix}
+aws:
+  region: ${aws_region}
+  zoneType: public
+serviceAccount:
+  name: external-dns
+  annotations:
+    eks.amazonaws.com/role-arn: ${role_arn}
+

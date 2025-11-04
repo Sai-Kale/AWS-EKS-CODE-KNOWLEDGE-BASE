@@ -1,0 +1,13 @@
+region: ${region}
+vpcId: ${vpc_id}
+clusterName: "${cluster_name}"
+enableCertManager: false
+enableServiceMutatorWebhook: false
+image:
+  repository: docker-artifactory.spectrumflow.net/docker/external/eks/aws-load-balancer-controller
+imagePullSecrets:
+  - name: "docker-artifactory"
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: ${role_arn}
+    service.beta.kubernetes.io/aws-load-balancer-subnets: ${node_subnets}

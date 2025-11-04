@@ -1,0 +1,19 @@
+deployment:
+  enabled: true
+image:
+  repository: docker-artifactory.spectrumflow.net/docker-corp-chartercom-com-infosecurity-virtual/crowdstrike/falcon-imageanalyzer
+  tag: "${falcon_iar_image_tag}"
+  pullSecret: docker-artifactory
+proxyConfig:
+  HTTPS_PROXY: "${falcon_proxy_url}"
+  HTTP_PROXY: "${falcon_proxy_url}"
+  NO_PROXY: 'localhost, 100.64.0.0/16, 172.20.0.0/16'
+crowdstrikeConfig:
+  enableDebug: 'false'
+  clusterName: ${cluster_name}
+  agentRunmode: watcher
+  agentRegion: us-2
+  agentRuntime: containerd
+  clientID: ${client_id}
+  clientSecret: ${client_secret}
+  cid: "${falcon_cid}"

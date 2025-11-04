@@ -1,0 +1,83 @@
+---
+controller:
+  kind: Deployment
+  replicaCount: 2
+  ingressClassName: nginx
+  containerPort:
+    http: 80
+    https: 443
+  service:
+    type: NodePort
+    targetPorts:
+      http: http
+      https: http
+  config:
+    http-snippet: |
+        proxy_cache_path /tmp/cache
+        levels=1:2
+        keys_zone=app_cache:100m
+        max_size=1g
+        inactive=60m
+        use_temp_path=off;
+
+        server {
+            listen 18080;
+
+            location /nginx_status {
+                stub_status on;
+                access_log  off;
+                allow all;
+            }
+
+            location / {
+                return 404;
+            }
+        }
+    annotations-risk-level: "Critical"
+    ssl-redirect: "false"
+    use-forwarded-headers: "true"
+    log-format:	|
+      api_request_log escape=none '[$time_local] $request \n$request_body';
+    log-format-upstream: '{"time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr", "x-forward-for": "$proxy_add_x_forwarded_for", "location": "$http_location", "request_id": "$req_id", "remote_user": "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time, "status":$status, "vhost": "$host", "request_proto": "$server_protocol", "path": "$uri", "request_query": "$args", "request_length": $request_length, "duration": $request_time,"method": "$request_method", "http_referrer": "$http_referer", "http_user_agent": "$http_user_agent", "cache_status": "$upstream_cache_status" }'
+    log-format-escape-json: "true"
+
+  metrics:
+    enabled: false
+    serviceMonitor:
+      enabled: false
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2048Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: ""
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+              app.kubernetes.io/component: controller
+              # This should be the same as the release name
+              app.kubernetes.io/instance: ingress-nginx
+          topologyKey: kubernetes.io/hostname
+        weight: 100
+  admissionWebhooks:
+    enabled: false
+defaultBackend:
+  enabled: true
+  resources:
+    limits:
+      cpu: 10m
+      memory: 20Mi
+    requests:
+      cpu: 10m
+      memory: 20Mi
