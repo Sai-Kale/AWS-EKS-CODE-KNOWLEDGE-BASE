@@ -1,0 +1,14 @@
+clientRbac:
+  create: true
+  namespaced: true
+  namespaces:
+    - ambassador
+  subjects:
+    - apiGroup: rbac.authorization.k8s.io
+      kind: Group
+      name: dp-os-developers
+
+image:
+  name: tel2
+  registry: docker-artifactory.spectrumflow.net/docker/datawire
+  tag: 2.12.1

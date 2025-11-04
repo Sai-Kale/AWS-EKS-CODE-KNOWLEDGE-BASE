@@ -1,0 +1,85 @@
+---
+# see: https://artifacthub.io/packages/helm/node-local-dns/node-local-dns#values
+metrics:
+  prometheusScrape: false
+resources:
+  requests:
+    cpu: 30m
+    memory: 50Mi
+image:
+  args:
+    upstreamSvc: kube-dns
+config:
+  localDnsIp: 169.254.20.10
+  zones:
+    - zone: "cluster.local.:53"
+      plugins:
+        errors: true
+        reload: true
+        debug: false
+        cache:
+          # see: https://coredns.io/plugins/cache/
+          parameters: 30
+          denial:
+            size: 9984
+            ttl: 5
+          success:
+            size: 9984
+            ttl: 30
+          # prefetch: {
+          # amount: 20
+          #  duration: 1m
+          #  percentage: 20%
+          #}
+          # log:
+          #  fomat: common
+          #  classes: all
+          serve_stale: false
+        forward:
+          parameters: __PILLAR__CLUSTER__DNS__ # defaults to kube-dns upstream svc
+          force_tcp: true
+          prefer_udp: false
+        prometheus: false
+        health:
+          port: 8080
+    - zone: in-addr.arpa:53
+      plugins:
+        errors: true
+        reload: true
+        debug: false
+        cache:
+          parameters: 30
+        forward:
+          parameters: __PILLAR__CLUSTER__DNS__
+          force_tcp: true
+        prometheus: false
+        health:
+          port: 8080
+    - zone: ip6.arpa:53
+      plugins:
+        errors: true
+        reload: true
+        debug: false
+        cache:
+          parameters: 30
+        forward:
+          parameters: __PILLAR__CLUSTER__DNS__
+          force_tcp: true
+        prometheus: false
+        health:
+          port: 8080
+    - zone: ".:53"
+      plugins:
+        errors: true
+        reload: true
+        loop: true
+        debug: false
+        cache:
+          parameters: 30
+          prefetch: {}
+          serve_stale: false
+        forward:
+          parameters: __PILLAR__UPSTREAM__SERVERS__ # defaults to AWS R53 DNS 
+          force_tcp: false
+        health:
+          port: 8080

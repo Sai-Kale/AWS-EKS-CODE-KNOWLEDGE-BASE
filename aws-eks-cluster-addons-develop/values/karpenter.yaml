@@ -1,0 +1,18 @@
+serviceAccount:
+  name: karpenter
+  annotations:
+    eks.amazonaws.com/role-arn: 'arn:aws:iam::${account_number}:role/${cluster_name}-karpenter-controller-role'
+settings:
+  clusterName: ${cluster_name}
+  clusterEndpoint: ${cluster_endpoint}
+  defaultInstanceProfile: ${cluster_name}-karpenter-instance-profile
+controller:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+webhook:
+  enabled: true
